@@ -363,6 +363,10 @@ void usercontrol(void) {
       INTAKE2.stop();
     }
 
+    /* FIX CATAPULT
+    The built in rotation sensors in the motors are not accurate. need to add an actual rotation sensor to the bot
+    */ 
+
     // Catapult
     if (CATA.position(rotationUnits::deg) < 198){
       CATA.spin(forward,100,pct);
