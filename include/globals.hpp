@@ -61,8 +61,13 @@ inline lemlib::ChassisController_t angularController {
 
 // Cata
 inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
-
 inline pros::Rotation cata_rotation(6, false);
+
+// Wings
+#define DIGITAL_SENSOR_PORT 'H'
+inline pros::ADIDigitalOut wings(DIGITAL_SENSOR_PORT);
+inline bool wingstate = false;
+
 
 // Intake
 inline pros::Motor intake_right(16, pros::E_MOTOR_GEARSET_18, true);

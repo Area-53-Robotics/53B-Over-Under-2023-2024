@@ -28,6 +28,8 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello World");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	wings.set_value(false);
 }
 
 /**
@@ -97,10 +99,18 @@ void opcontrol() {
 		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 			cata.move(127);
 		} else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-			cata.move(127);
+			cata.move(-127);
 		} else {
 			cata.brake();
 		}
+
+		// Wings
+		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
+			wings.set_value(not wingstate);
+			wingstate = not wingstate;
+		}
+
+
 		
 		//controller.print(0,0, "CataPos: %f", cata_rotation.get_angle());
 		pros::screen::print(TEXT_SMALL, 3, "Cata Position: %f", cata_rotation.get_angle()/100);
