@@ -62,42 +62,72 @@
 	* from where it left off.
 	*/
 	void autonomous() {
-		left_side_motors.move(75);
-		right_side_motors.move(75);
-		pros::delay(1000);
-		left_side_motors.brake();
+		right_side_motors.move(-120);
+		left_side_motors.move(-120);
+
+		pros::delay(1500);
+
 		right_side_motors.brake();
-
-		pros::delay(500);
-
-		right_side_motors.move(35);
-		left_side_motors.move(-35);
-		pros::delay(500);
 		left_side_motors.brake();
+
+		right_side_motors.move(80);
+		left_side_motors.move(80);
+
+		pros::delay(750);
+
 		right_side_motors.brake();
+		left_side_motors.brake();
 
-		pros::delay(500);
+		pros::delay(1500);
 
+
+		/*
+		// movee forward
+		chassis.moveTo(
+			0.0, // x
+			-10.0, // y
+			0.0, // angle
+			4000 // timeout
+		);
+
+		chassis.moveTo(
+			0.0, // x
+			-5.0, // y
+			0.0, // angle
+			4000 // timeout
+		);
+
+		/*
+		// move forward
+		chassis.moveTo(
+			0.0, // x
+			12.0, // y
+			0.0, // angle
+			4000 // timeout
+		);
+
+		// turn left
+		chassis.moveTo(
+			0, // x
+			12, // y
+			-90, // angle
+			4000 // timeout
+		);
+
+		// move forward
+		chassis.moveTo(
+			-3, // x
+			12, // y
+			-90, // angle
+			4000 // timeout
+		);
+
+		// spin intake
 		intake.move(-127);
 		pros::delay(1000);
-
-		left_side_motors.move(127);
-		right_side_motors.move(127);
-		pros::delay(250);
-		left_side_motors.brake();
-		right_side_motors.brake();
-
-		pros::delay(1000);
-
-		left_side_motors.move(-127);
-		right_side_motors.move(-127);
-		pros::delay(250);
-		left_side_motors.brake();
-		right_side_motors.brake();
-
-		
 		intake.brake();
-	
+		*/
+		
 	}
 
 	void opcontrol() {
@@ -120,12 +150,16 @@
 			}
 
 			// Cata
-			if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-				cata.move(127);
-			} else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-				cata.move(-127);
+
+			if (!limit_switch.get_value()) {
+				cata.move(80);
 			} else {
-				cata.brake();
+				if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+					cata.move(80);
+					pros::delay(500);
+				} else {
+					cata.brake();
+				}
 			}
 
 			
@@ -142,8 +176,8 @@
 				}
 			}
 			
-			//controller.print(0,0, "CataPos: %f", cata_rotation.get_angle());
-			pros::screen::print(TEXT_SMALL, 3, "Cata Position: %f", cata_rotation.get_angle()/100);
+			controller.print(0,0, "CataPos: %d", limit_switch.get_value());
+			//pros::screen::print(TEXT_SMALL, 3, "Cata Position: %f", limit_switch.get_value());
 
 			pros::delay(20);
 		}

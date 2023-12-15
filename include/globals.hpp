@@ -18,50 +18,52 @@ inline pros::Motor right_upper_motor(1, pros::E_MOTOR_GEARSET_06, true);
 inline pros::MotorGroup right_side_motors({right_front_motor, right_rear_motor, right_upper_motor});
 
 //Drivetrain
-inline lemlib::Drivetrain_t drivetrain {
+inline lemlib::Drivetrain drivetrain(
     &left_side_motors, // left drivetrain motors
     &right_side_motors, // right drivetrain motors
-    10, // track width
-    6, // wheel diameter
-    343 // wheel rpm
-};
+    12.6, // track width
+    lemlib::Omniwheel::NEW_4, // wheel diameter
+    343, // wheel rpm,
+    2 // chase power
+);
 
 // Odometry
 inline pros::Imu inertial_sensor(20); //set this to sensor port when wire is fixed
 
-inline lemlib::OdomSensors_t sensors {
+inline lemlib::OdomSensors sensors(
     nullptr, // vertical tracking wheel 1
     nullptr, // vertical tracking wheel 2
     nullptr, // horizontal tracking wheel 1
     nullptr, // we don't have a second tracking wheel, so we set it to nullptr
     &inertial_sensor //set to &intertial_sensor when wire is fixed   
-};
+);
 
-// Forward/Backward PID
-inline lemlib::ChassisController_t lateralController {
-    8, // kP
-    30, // kD
-    1, // smallErrorRange
-    100, // smallErrorTimeout
-    3, // largeErrorRange
-    500, // largeErrorTimeout
-    5 // slew rate
-};
- 
-// Turning PID
-inline lemlib::ChassisController_t angularController {
-    4, // kP
-    40, // kD
-    1, // smallErrorRange
-    100, // smallErrorTimeout
-    3, // largeErrorRange
-    500, // largeErrorTimeout
-    0 // slew rate
-};
+// lateral motion controller
+lemlib::ControllerSettings linearController(
+    10, // proportional gain (kP)
+    30, // derivative gain (kD)
+    1, // small error range, in inches
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in inches
+    500, // large error range timeout, in milliseconds
+    20 // maximum acceleration (slew)
+);
+
+// angular motion controller
+lemlib::ControllerSettings angularController(
+    2, // proportional gain (kP)
+    10, // derivative gain (kD)
+    1, // small error range, in degrees
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in degrees
+    500, // large error range timeout, in milliseconds
+    20 // maximum acceleration (slew)
+);
 
 // Cata
 inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
-inline pros::Rotation cata_rotation(6, false);
+inline pros::ADIDigitalIn limit_switch('G');
+inline pros::ADIAnalogIn cata_rotation(9);
 
 // Wings
 inline pros::ADIDigitalOut wings('H');
@@ -74,4 +76,4 @@ inline pros::Motor intake_left(19, pros::E_MOTOR_GEARSET_18, false);
 inline pros::MotorGroup intake({intake_right, intake_left});
 
 // Create the chassis
-inline lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
+inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors);
