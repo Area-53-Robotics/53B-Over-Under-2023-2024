@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lemlib/api.hpp"
 
 // Controller
@@ -18,6 +20,8 @@ inline pros::Motor right_upper_motor(1, pros::E_MOTOR_GEARSET_06, true);
 inline pros::MotorGroup right_side_motors({right_front_motor, right_rear_motor, right_upper_motor});
 
 //Drivetrain
+inline pros::MotorGroup drive({right_front_motor, right_rear_motor, right_upper_motor, left_front_motor, left_rear_motor, left_upper_motor}); // Basic drive motor group for other functions
+
 inline lemlib::Drivetrain drivetrain(
     &left_side_motors, // left drivetrain motors
     &right_side_motors, // right drivetrain motors
@@ -63,17 +67,15 @@ lemlib::ControllerSettings angularController(
 // Cata
 inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
 inline pros::ADIDigitalIn limit_switch('G');
-inline pros::ADIAnalogIn cata_rotation(9);
 
+/*
 // Wings
 inline pros::ADIDigitalOut wings('H');
 bool wingstate = false;
+*/
 
 // Intake
-inline pros::Motor intake_right(16, pros::E_MOTOR_GEARSET_18, true);
-inline pros::Motor intake_left(19, pros::E_MOTOR_GEARSET_18, false);
-
-inline pros::MotorGroup intake({intake_right, intake_left});
+inline pros::Motor intake(19, pros::E_MOTOR_GEARSET_18, false);
 
 // Create the chassis
 inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors);
