@@ -43,7 +43,7 @@ inline lemlib::OdomSensors sensors(
 );
 
 // lateral motion controller
-lemlib::ControllerSettings linearController(
+inline lemlib::ControllerSettings linearController(
     10, // proportional gain (kP)
     30, // derivative gain (kD)
     1, // small error range, in inches
@@ -54,7 +54,7 @@ lemlib::ControllerSettings linearController(
 );
 
 // angular motion controller
-lemlib::ControllerSettings angularController(
+inline lemlib::ControllerSettings angularController(
     2, // proportional gain (kP)
     10, // derivative gain (kD)
     1, // small error range, in degrees
