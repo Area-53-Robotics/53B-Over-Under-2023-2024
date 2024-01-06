@@ -6,16 +6,16 @@
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // Left Drive
-inline pros::Motor left_front_motor(7, pros::E_MOTOR_GEARSET_06, true);
-inline pros::Motor left_rear_motor(8, pros::E_MOTOR_GEARSET_06, true);
-inline pros::Motor left_upper_motor(10, pros::E_MOTOR_GEARSET_06, false);
+inline pros::Motor left_front_motor(7, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
+inline pros::Motor left_rear_motor(8, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
+inline pros::Motor left_upper_motor(10, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
 
 inline pros::MotorGroup left_side_motors({left_front_motor, left_rear_motor, left_upper_motor});
 
 // Right Drive
-inline pros::Motor right_front_motor(3, pros::E_MOTOR_GEARSET_06, false);
-inline pros::Motor right_rear_motor(2, pros::E_MOTOR_GEARSET_06, false);
-inline pros::Motor right_upper_motor(1, pros::E_MOTOR_GEARSET_06, true);
+inline pros::Motor right_front_motor(3, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
+inline pros::Motor right_rear_motor(2, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
+inline pros::Motor right_upper_motor(1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
 
 inline pros::MotorGroup right_side_motors({right_front_motor, right_rear_motor, right_upper_motor});
 
@@ -66,6 +66,7 @@ inline lemlib::ControllerSettings angularController(
 
 // Cata
 inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
+inline bool cataPressed = false;
 inline pros::ADIDigitalIn limit_switch('G');
 
 /*
@@ -75,7 +76,10 @@ bool wingstate = false;
 */
 
 // Intake
-inline pros::Motor intake(19, pros::E_MOTOR_GEARSET_18, false);
+inline pros::Motor intake(19, pros::E_MOTOR_GEARSET_18, true);
+
+// Auton Selector Switch
+inline pros::ADIDigitalIn auton_selector('A');
 
 // Create the chassis
 inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors);
