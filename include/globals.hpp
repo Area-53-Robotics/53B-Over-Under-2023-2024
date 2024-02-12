@@ -67,16 +67,22 @@ inline lemlib::ControllerSettings angularController(
 // Cata
 inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
 inline bool cataPressed = false;
-inline pros::ADIDigitalIn limit_switch('G');
+inline bool cataBrake = true;
 
-/*
+//inline pros::ADIDigitalIn limit_switch('G');
+
 // Wings
-inline pros::ADIDigitalOut wings('H');
-bool wingstate = false;
-*/
+inline pros::ADIDigitalOut back_piston('H');
+inline bool backPiston = false;
+inline pros::ADIDigitalOut front_piston('G');
+inline bool frontPiston = false;
+
+// Park
+inline pros::ADIDigitalOut park('E');
+inline bool parkPos = false;
 
 // Intake
-inline pros::Motor intake(19, pros::E_MOTOR_GEARSET_18, true);
+inline pros::Motor intake(9, pros::E_MOTOR_GEARSET_06, true);
 
 // Auton Selector Switch
 inline pros::ADIDigitalIn auton_selector('A');

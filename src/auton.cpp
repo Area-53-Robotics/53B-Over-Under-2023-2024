@@ -202,23 +202,28 @@ void turn_pid(double target, int timeout, int max_speed) {
     right_side_motors.move(0);
 }
 
-
 // Drive a motor group forward in inches
-void move_inches(double distance, double ticks_per_revolution = TICKS_6_1, double wheel = OMNI_4_IN, double motor_velocity = VELOCITY_6_1, double velocity_coefficient = 0.5) {
+void move_inches(double distance, double ticks_per_revolution = TICKS_6_1, double wheel = OMNI_4_IN, double motor_velocity = VELOCITY_6_1, double velocity_coefficient = 1) {
     double circumference = wheel * M_PI;
-    double revolutions = distance / circumference;
+    double revolutions = (distance / circumference) * 1.75 * 2;
     double ticks = ticks_per_revolution * revolutions;
     double velocity = motor_velocity * velocity_coefficient;
 
     left_side_motors.move_relative(ticks, velocity);
     right_side_motors.move_relative(ticks, velocity);
+
+    while (!(fabs(right_side_motors.get_positions()[0]-ticks) < 6)) {
+        pros::delay(5);
+        controller.print(0,0, "TICKS: %f", fabs(right_side_motors.get_positions()[0]-ticks));
+
+    }
 }
 
 void turn_degrees(double theta, double width = 12.75, double ticks_per_revolution = TICKS_6_1, double wheel = OMNI_4_IN, double motor_velocity = VELOCITY_6_1, double velocity_coefficient = 0.5) {
     double distance = width * 2 * M_PI / (360/theta);
     double circumference = wheel * M_PI;
     double revolutions = distance / circumference;
-    double ticks = ticks_per_revolution * revolutions;
+    double ticks = ticks_per_revolution * revolutions * 1.75 * 2;
     double velocity = motor_velocity * velocity_coefficient;
     
     left_side_motors.move_relative(ticks, velocity);
@@ -227,39 +232,66 @@ void turn_degrees(double theta, double width = 12.75, double ticks_per_revolutio
 }
 
 void turn_imu(double theta) {
-    while (inertial_sensor.get_heading() < theta) {
-        if (!(fabs(theta) == theta)) {
+    inertial_sensor.tare_heading();
+    controller.print(0,0, "IMU: %f", fabs(inertial_sensor.get_heading()-theta));
+
+    if (!(fabs(theta) == theta)) {
+        while (!(fabs(inertial_sensor.get_rotation()-theta) < 1)) {
             right_side_motors.move(75);
             left_side_motors.move(-75);
-        } else {
-            right_side_motors.move(-75);
-            left_side_motors.move(75);
         }
-    }
+    } else {
+        while (!(fabs(inertial_sensor.get_rotation()-theta < 1)))
+        right_side_motors.move(-75) ;
+        left_side_motors.move(75);
+    }   
+    left_side_motors.brake();
+    right_side_motors.brake(); 
 }
 
 
 void skills_autonomous() {
-    move_pid(-30, 4, 75);
-    turn_pid(-45, 3, 75);
-    cata.move(60);
+    front_piston.set_value(true);
+    cata.move(127);
     pros::delay(45000);
+    cata.brake();
+    front_piston.set_value(false);
+    move_inches(140);
+    pros::delay(6000);
+    move_inches(-20);
+    pros::delay(1000);
+    turn_degrees(-20);
+    pros::delay(1000);
+    move_inches(30);
+    pros::delay(1000);
+    move_inches(-20);
+    pros::delay(1000);
+    turn_degrees(40);
+    pros::delay(1000);
+    move_inches(30);
 
 }
 
 void driver_side() {
-    move_pid(50, 5, 75);
-    turn_pid(-90, 3, 75);
-    move_pid(12, 3, 127);
-    intake.move(-127);
+    front_piston.set_value(true);
+    pros::delay(500);
+    move_inches(36);
     pros::delay(2000);
+    turn_degrees(-90);
+    pros::delay(1000);
+    intake.move(127);
+    pros::delay(1000);
     intake.brake();
-    move_pid(3, 1, 75);
-    move_pid(-12, 3, 75);
+    move_inches(10);
+    pros::delay(500);
+    move_inches(-10);
 }
 
 void far_side() {
-    move_inches(50);
+    right_side_motors.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
+    left_side_motors.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
+    move_inches(12);
+    turn_imu(-40);
 }
 
 /**
@@ -275,42 +307,7 @@ void far_side() {
 */
 
 void autonomous() {
-    // driver side
-    /*
-    move_inches(110);
-    pros::delay(2000);
-
-    turn_degrees(-50);
-    pros::delay(2000);
-
-    move_inches(-15);
-    pros::delay(2000);
-
-    turn_degrees(-50);
-    pros::delay(2000);
-
-    move_inches(12);
-    pros::delay(1500);
-
-    intake.move(-127);
-    pros::delay(2000);
-    intake.brake();
-
-    turn_degrees(-30);
-    pros::delay(1500);
-
-    move_inches(10);
-    pros::delay(1000);
-
     move_inches(-20);
-    /*
-    cata.move(80);
-    */
-
-    // far side
-    move_inches(-80);
-    pros::delay(2000);
-
-    move_inches(40);
-
+    move_inches(10);
+    //skills_autonomous();
 }
