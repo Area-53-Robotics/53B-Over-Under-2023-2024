@@ -19,231 +19,40 @@
 #define OMNI_4_IN 4.0
 #define OMNI_3_IN 3.0
 
-void move_pid(double target, int timeout, int max_speed) {
-    inertial_sensor.tare();
-    drive.tare_position();
-    const float WHEEL_RADIUS = OMNI_4_IN / 2;  // Inches
-    float delay_time = 20;
-    double time_elapsed = 0;
-    int start_time = pros::millis();
-    int end_time = start_time + 1000 * timeout;
-    int time_at_target = 0;
-    double power, left_power, right_power, power_theta;
+// Drive function in inches
+void move_inches(double distance, double velocity_coefficient = 1) {
+    right_side_motors.tare_position();
+    left_side_motors.tare_position();
 
-    double dist_traveled;
-    double error;
-    double prev_error = error;
-
-    double error_theta;
-    double prev_error_theta = error_theta;
-
-    double integral;
-    double integral_theta;
-
-    double derivative;
-    double derivative_theta;
-
-    const float kp = 11;
-    const float ki = 0;
-    const float kd = 30;
-
-    const float kp_theta = 2;
-    const float ki_theta = 0;
-    const float kd_theta = 10;
-
-    std::vector<double> positions;
-
-    while (true) {
-        // Calculate PID values for distance distance traveled
-        positions = drive.get_positions();
-        dist_traveled = positions[0] * ((2 * M_PI / 360) * WHEEL_RADIUS);
-        error = target - dist_traveled;
-        integral = integral + error * delay_time;
-        derivative = error - prev_error;
-        prev_error = error;
-
-        // Calculate PID values for rotation
-        error_theta = inertial_sensor.get_rotation();
-        integral_theta = integral_theta + error_theta * delay_time;
-        derivative_theta = error_theta - prev_error_theta;
-        prev_error_theta = error_theta;
-        power_theta = (error_theta * kp_theta) + (derivative_theta * kd_theta);
-
-        if (power_theta > max_speed) {
-        integral_theta = 0;
-        }
-
-        power = (error * kp) + (integral * ki) + (derivative * kd);
-
-        // Correct the power based on rotation (we want to move in a straight line)
-        left_power = (power + power_theta);
-        right_power = (power - power_theta);
-
-        if (left_power > max_speed) {
-            left_power = max_speed;
-        }
-        if (right_power > max_speed) {
-             right_power = max_speed;
-        }
-
-        right_side_motors.move(right_power);
-        left_side_motors.move(left_power);
-
-        // check exit conditions
-        if (error < 0.5 && error > -0.5) {
-        // The chassis has to spend time at the target to make sure it doesn't overshoot.
-            time_at_target += delay_time;
-            if (time_at_target > 500) {  // 500 Milliseconds
-                printf("move_pid met the target\n");
-                break;
-            }
-        } else {
-            time_at_target = 0;
-        }
-
-        // Timeout
-        if (pros::millis() > end_time) {
-            printf("move_pid timed out\n");
-            break;
-        }
-
-        printf("%f, %f, %f, %f\n", power, error * kp, integral * ki, derivative * kd);
-        // printf("%f, %f, %f, %f\n", power_theta, error_theta * kp_theta, integral_theta * ki_theta, derivative_theta * kd_theta);
-
-    pros::delay(delay_time);
-    time_elapsed += delay_time;
-  }
-
-  left_side_motors.move(0);
-  right_side_motors.move(0);
-}
-
-void turn_pid(double target, int timeout, int max_speed) {
-    inertial_sensor.tare();
-    drive.tare_position();
-    const float WHEEL_RADIUS = OMNI_4_IN / 2;  // Inches
-    float delay_time = 10;
-    double end_time = pros::millis() + timeout * 1000;  // Convert to seconds
-    double time_elapsed = 0;
-    double time_at_target = 0;
-    double power;
-    bool is_target_negative = false;
-
-    if (target < 0) {
-        is_target_negative = true;
-    }
-
-    double dist_traveled;
-    double error;
-    double prev_error = error;
-
-    double integral;
-
-    double derivative;
-
-    const double kp = 0.8;
-    const double ki = 0.0008;
-    const double kd = 0.5;
-
-    while (true) {
-        // Calculate PID values for distance distance traveled
-        dist_traveled = fabs(inertial_sensor.get_rotation());
-        error = fabs(target) - dist_traveled;
-        integral = integral + error * delay_time;
-        derivative = error - prev_error;
-        prev_error = error;
-
-        power = (error * kp) + (integral * ki) + (derivative * kd);
-
-        if (power > max_speed) {
-            power = max_speed;
-        }
-
-        if (power > 50) {
-            integral = 0;
-        }
-
-        if (!is_target_negative) {
-            //move(power, -power);
-            left_side_motors.move(power);
-            right_side_motors.move(-power);
-        } else {
-            //move(-power, power);
-            left_side_motors.move(power);
-            right_side_motors.move(-power);
-        }
-
-        // check exit conditions
-        if (error < 0.5 && error > -0.5) {
-            // The chassis has to spend time at the target to make sure it doesn't
-            // overshoot.
-            time_at_target += delay_time;
-            if (time_at_target > 500) {  // 500 Milliseconds
-                printf("turn_pid met the target\n");
-                break;
-            }
-        } else {
-            time_at_target = 0;
-        }
-
-        // Timeout
-        if (pros::millis() > end_time) {
-            printf("turn_pid timed out\n");
-            break;
-        }
-
-        // printf("%f, %f, %f, %f\n", power, error * kp, integral * ki,
-        // derivative * kd);
-
-        pros::delay(delay_time);  // Milliseconds
-    }
-
-    left_side_motors.move(0);
-    right_side_motors.move(0);
-}
-
-// Drive a motor group forward in inches
-void move_inches(double distance, double ticks_per_revolution = TICKS_6_1, double wheel = OMNI_4_IN, double motor_velocity = VELOCITY_6_1, double velocity_coefficient = 1) {
-    double circumference = wheel * M_PI;
+    double circumference = OMNI_4_IN * M_PI;
     double revolutions = (distance / circumference) * 1.75 * 2;
-    double ticks = ticks_per_revolution * revolutions;
-    double velocity = motor_velocity * velocity_coefficient;
+    double ticks = TICKS_6_1 * revolutions;
+    double velocity = VELOCITY_6_1 * velocity_coefficient;
 
     left_side_motors.move_relative(ticks, velocity);
     right_side_motors.move_relative(ticks, velocity);
-
-    while (!(fabs(right_side_motors.get_positions()[0]-ticks) < 6)) {
-        pros::delay(5);
-        controller.print(0,0, "TICKS: %f", fabs(right_side_motors.get_positions()[0]-ticks));
-
-    }
-}
-
-void turn_degrees(double theta, double width = 12.75, double ticks_per_revolution = TICKS_6_1, double wheel = OMNI_4_IN, double motor_velocity = VELOCITY_6_1, double velocity_coefficient = 0.5) {
-    double distance = width * 2 * M_PI / (360/theta);
-    double circumference = wheel * M_PI;
-    double revolutions = distance / circumference;
-    double ticks = ticks_per_revolution * revolutions * 1.75 * 2;
-    double velocity = motor_velocity * velocity_coefficient;
     
-    left_side_motors.move_relative(ticks, velocity);
-    right_side_motors.move_relative(ticks*-1, velocity);
-
+    // Add stall
+    /*
+    while (moving) {
+        pros::delay(10);
+    }
+    
+    */
 }
 
-void turn_imu(double theta) {
-    inertial_sensor.tare_heading();
-    controller.print(0,0, "IMU: %f", fabs(inertial_sensor.get_heading()-theta));
+void turn_imu(double theta, double speed = 75) {
+    inertial_sensor.tare_rotation();
 
-    if (!(fabs(theta) == theta)) {
-        while (!(fabs(inertial_sensor.get_rotation()-theta) < 1)) {
-            right_side_motors.move(75);
-            left_side_motors.move(-75);
+    if (fabs(theta) != theta) {
+        while (fabs(inertial_sensor.get_rotation()-theta) > 1) {
+            right_side_motors.move(speed);
+            left_side_motors.move(speed*-1);
         }
     } else {
-        while (!(fabs(inertial_sensor.get_rotation()-theta < 1)))
-        right_side_motors.move(-75) ;
-        left_side_motors.move(75);
+        while (fabs(inertial_sensor.get_rotation()-theta > 1))
+        right_side_motors.move(speed*-1) ;
+        left_side_motors.move(speed);
     }   
     left_side_motors.brake();
     right_side_motors.brake(); 
@@ -251,47 +60,20 @@ void turn_imu(double theta) {
 
 
 void skills_autonomous() {
-    front_piston.set_value(true);
-    cata.move(127);
-    pros::delay(45000);
-    cata.brake();
-    front_piston.set_value(false);
-    move_inches(140);
-    pros::delay(6000);
-    move_inches(-20);
-    pros::delay(1000);
-    turn_degrees(-20);
-    pros::delay(1000);
-    move_inches(30);
-    pros::delay(1000);
-    move_inches(-20);
-    pros::delay(1000);
-    turn_degrees(40);
-    pros::delay(1000);
-    move_inches(30);
 
 }
 
-void driver_side() {
-    front_piston.set_value(true);
-    pros::delay(500);
-    move_inches(36);
-    pros::delay(2000);
-    turn_degrees(-90);
-    pros::delay(1000);
-    intake.move(127);
-    pros::delay(1000);
-    intake.brake();
-    move_inches(10);
-    pros::delay(500);
-    move_inches(-10);
+void driver_side_score() {
+
+}
+
+void driver_side_awp() {
+
 }
 
 void far_side() {
-    right_side_motors.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
-    left_side_motors.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
-    move_inches(12);
-    turn_imu(-40);
+    move_inches(-20);
+    move_inches(10);
 }
 
 /**
@@ -307,7 +89,5 @@ void far_side() {
 */
 
 void autonomous() {
-    move_inches(-20);
-    move_inches(10);
-    //skills_autonomous();
+
 }

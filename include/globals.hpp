@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lemlib/api.hpp"
+#include "sylib/sylib.hpp"
 
 // Controller
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -65,27 +66,24 @@ inline lemlib::ControllerSettings angularController(
 );
 
 // Cata
-inline pros::Motor cata(11, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
-inline bool cataPressed = false;
-inline bool cataBrake = true;
+inline sylib::Motor flywheel(11, 600, false);
+inline bool flywheel_active = false;
+inline bool flywheel_direction = true;
 
-//inline pros::ADIDigitalIn limit_switch('G');
-
-// Wings
-inline pros::ADIDigitalOut back_piston('H');
-inline bool backPiston = false;
-inline pros::ADIDigitalOut front_piston('G');
-inline bool frontPiston = false;
+// Lift
+inline pros::ADIDigitalOut lift('G');
+inline bool lift_state = false;
 
 // Park
 inline pros::ADIDigitalOut park('E');
-inline bool parkPos = false;
+inline bool park_state = false;
+
+// Wings
+inline pros::ADIDigitalOut wings('H');
+inline bool wing_state = false;
 
 // Intake
 inline pros::Motor intake(9, pros::E_MOTOR_GEARSET_06, true);
-
-// Auton Selector Switch
-inline pros::ADIDigitalIn auton_selector('A');
 
 // Create the chassis
 inline lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors);

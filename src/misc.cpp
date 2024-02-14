@@ -7,14 +7,18 @@
 * All other competition modes are blocked by initialize; it is recommended
 * to keep execution time for this mode under a few seconds.
 */
-void initialize() {}
+void initialize() {
+    sylib::initialize();
+}
 
 /**
 * Runs while the robot is in the disabled state of Field Management System or
 * the VEX Competition Switch, following either autonomous or opcontrol. When
 * the robot is enabled, this task will exit.
 */
-void disabled() {}
+void disabled() {
+    
+}
 
 /**
 * Runs after initialize(), and before autonomous when connected to the Field
@@ -25,4 +29,6 @@ void disabled() {}
 * This task will exit when the robot is enabled and autonomous or opcontrol
 * starts.
 */
-void competition_initialize() {}
+void competition_initialize() {
+
+}
