@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "53B-PROS",
+    "project_name": "53B-DRIVER-SIDE",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -487,7 +487,9 @@
       }
     },
     "upload_options": {
-      "icon": "pros"
+      "icon": "pros",
+      "slot": 1,
+      "description": "My PROS Project"
     }
   }
 }

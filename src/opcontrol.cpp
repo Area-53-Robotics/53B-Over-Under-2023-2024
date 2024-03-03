@@ -12,34 +12,7 @@ double calc_drive_curve(double joy_stick_position, float drive_curve_scale) {
   return joy_stick_position;
 }
 
-double current_velocity;
-
-double error;
-double prev_error;
-double total_error;
-
-double integral;
-double derivative;
-double output;
-
-double kp = 1;
-double ki = 1;
-double kd = 1;
-
-void flywheel_pid(double target) {
-	current_velocity = flywheel.get_velocity();
-
-	error = target - current_velocity;
-
-	integral += error;
-
-	derivative = error - prev_error;
-	prev_error = error;
-
-	output = error * kp + integral * ki + derivative * kd;
-
-	flywheel.set_velocity(output);
-}
+double drive_temp;
 
 void opcontrol() {
 	intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -49,11 +22,8 @@ void opcontrol() {
 
 	while (true) {
 		// Drive
-		int forward = calc_drive_curve(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y), 3.5);
-		//int forward = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-		
+		int forward = calc_drive_curve(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y), 3.5);		
 		int turn = calc_drive_curve(controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X), 3.5);
-		//int turn = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 		chassis.arcade(forward, turn);
 
 		// Intake
@@ -71,7 +41,7 @@ void opcontrol() {
 		}
 
 		if (flywheel_active) {
-			flywheel_pid(500);
+			flywheel.set_velocity(450);
 		} else {
 			flywheel.set_velocity(0);
 		}
@@ -88,11 +58,20 @@ void opcontrol() {
 			park_state = !park_state;
 		}
 
-		// Wings
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-			wings.set_value(!wing_state);
-			wing_state = !wing_state;
-		}
+		drive_temp = 0.0;
+		
+		drive_temp += 
+			left_front_motor.get_temperature() +
+			left_rear_motor.get_temperature() +
+			left_upper_motor.get_temperature() +
+			right_front_motor.get_temperature() +
+			right_rear_motor.get_temperature() +
+			right_upper_motor.get_temperature();
+		drive_temp /= 6.0;
+		//drive_temp *= 1.8;
+		//drive_temp += 32.0;
+
+		controller.print(0, 0, "TEMP: %.2f°C      ", drive_temp);
 
 		pros::delay(20);
 	}

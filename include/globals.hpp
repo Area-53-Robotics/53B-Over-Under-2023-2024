@@ -33,7 +33,7 @@ inline lemlib::Drivetrain drivetrain(
 );
 
 // Odometry
-inline pros::Imu inertial_sensor(20); //set this to sensor port when wire is fixed
+inline pros::Imu inertial_sensor(20);
 
 inline lemlib::OdomSensors sensors(
     nullptr, // vertical tracking wheel 1
@@ -77,10 +77,6 @@ inline bool lift_state = false;
 // Park
 inline pros::ADIDigitalOut park('E');
 inline bool park_state = false;
-
-// Wings
-inline pros::ADIDigitalOut wings('H');
-inline bool wing_state = false;
 
 // Intake
 inline pros::Motor intake(9, pros::E_MOTOR_GEARSET_06, true);

@@ -9,6 +9,9 @@
 */
 void initialize() {
     sylib::initialize();
+    printf("calibrating IMU...");
+    inertial_sensor.reset(true);
+    printf("IMU calibrated");
 }
 
 /**
